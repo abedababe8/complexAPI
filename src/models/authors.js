@@ -3,6 +3,7 @@ const path = require('path')
 const shortid = require('shortid')
 
 const file = path.join(__dirname, 'db.json')
+console.log(file);
 
 function getAll(){
   const contents = fs.readFileSync(file, 'utf-8')
@@ -32,9 +33,10 @@ function create(fname, lname){
 
   const author = { id: shortid.generate(), fname, lname}
   console.log(author);
-  authors.push(author)
+  wholeFile.authors.push(author)
   const json = JSON.stringify(wholeFile)
   fs.writeFileSync(file, json)
+  console.log(wholeFile);
   return { data: author }
 }
 function update(id, fname, lname){

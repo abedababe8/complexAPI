@@ -17,10 +17,6 @@ function getOne(id){
   return book ? { data: book } : { error: 'book not Found'}
 }
 function create(name, borrowed, desc, authors, authorID){
-  const contents = fs.readFileSync(file, 'utf-8')
-  const wholeFile = JSON.parse(contents)
-  const books = wholeFile.books
-  const onFileAuthors = wholeFile.authors
   const errors = []
   let splitAuthor;
   if (!name){
@@ -36,10 +32,8 @@ function create(name, borrowed, desc, authors, authorID){
     errors.push('please include the author(s) of the book')
   }
   else{
-
     splitAuthor = authors.map(indivAuthor => indivAuthor.split(' '))
     console.log(splitAuthor);
-
   }
 
   if (splitAuthor && splitAuthor.length > 2){
@@ -48,26 +42,45 @@ function create(name, borrowed, desc, authors, authorID){
   if (errors.length > 0){
     return {error: errors}
   }
+
+
+  let contents = fs.readFileSync(file, 'utf-8')
+  const wholeFile = JSON.parse(contents)
+  const onFileAuthors = wholeFile.authors
+
+
   let author;
-  const foundAuthor = onFileAuthors.find(author => author.fname === splitAuthor[0][0] && author.lname === splitAuthor[0][1])
+  const foundAuthor = onFileAuthors.filter(onFileAuthor =>
+    splitAuthor.every(split =>
+      onFileAuthor.fname !== split[0] && onFileAuthor.lname !== split[1]
+    )
+  )
+
+  console.log('sdfsdfsdf', foundAuthor)
   // const foundAuthor2 = onFileAuthors.find(author => author.fname === splitAuthor[1][0] && author.lname === splitAuthor[1][1])
   if (!foundAuthor && splitAuthor.length > 1){
-    console.log('bob');
-    authorModel.create(splitAuthor[0][0], splitAuthor[0][1])
-    authorModel.create(splitAuthor[1][0], splitAuthor[1][1])
+    splitAuthor.forEach(author => {
+      console.log('s', author);
+      authorModel.create(author[0], author[1])
+    })
+
   }
   if (!foundAuthor && splitAuthor.length === 1){
-    console.log('hello');
-    authorModel.create(splitAuthor[0], splitAuthor[1])
+    console.log('hello', splitAuthor);
+    authorModel.create(splitAuthor[0][0], splitAuthor[0][1])
   }
   else {
     console.log('good');
     authors = foundAuthor
   }
 
+  contents = fs.readFileSync(file, 'utf-8')
+  const newParsedFile = JSON.parse(contents)
+  const books = newParsedFile.books
   const book = { id: shortid.generate(), name, borrowed, desc, authors}
   books.push(book)
-  const json = JSON.stringify(wholeFile)
+  console.log('a', newParsedFile)
+  const json = JSON.stringify(newParsedFile)
   fs.writeFileSync(file, json)
   return { data: book }
 }
