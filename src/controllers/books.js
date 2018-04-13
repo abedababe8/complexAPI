@@ -15,8 +15,26 @@ function getOne (req, res, next) {
     return next({ status: 404, message: book.error })
   }
 }
+function getOneAuthor (req, res, next) {
+  const book = model.getOneAuthor(req.params.id)
+  if(book.data){
+    return res.status(200).send({ data: book.data })
+  }
+  else if(book.error){
+    return next({ status: 404, message: book.error })
+  }
+}
 function create (req, res, next) {
-  const book = model.create(req.body.name, req.body.borrowed, req.body.description, req.body.authors)
+  const book = model.create(req.body.name, req.body.borrowed, req.body.description, req.body.author)
+  if (book.error){
+    return res.status(400).send({data: book.error})
+  }
+  if (book.data){
+    return res.status(201).send({data: book.data})
+  }
+}
+function createAuthor (req, res, next) {
+  const book = model.createAuthor(req.params.id, req.body.author)
   if (book.error){
     return res.status(400).send({data: book.error})
   }
@@ -25,7 +43,16 @@ function create (req, res, next) {
   }
 }
 function update (req, res, next) {
-  const book = model.update(req.params.id, req.body.name, req.body.borrowed, req.body.description, req.body.authors)
+  const book = model.update(req.params.id, req.body.name, req.body.borrowed, req.body.description, req.body.author)
+  if(book.data){
+    return res.status(200).send({ data: book.data })
+  }
+  else if(book.error){
+    return next({ status: 404, message: book.error })
+  }
+}
+function updateAuthor(req, res, next) {
+  const book = model.updateAuthor(req.params.id, req.params.authorID, req.body.author)
   if(book.data){
     return res.status(200).send({ data: book.data })
   }
@@ -43,6 +70,15 @@ function destroy (req, res, next) {
     return next({ status: 404, message: book.error })
   }
 }
+function destroyAuthor(req, res, next) {
+  const book = model.destroyAuthor(req.params.id, req.params.authorID)
+  if(book.data){
+    return res.status(200).send({ data: book.data })
+  }
+  else if(book.error){
+    return next({ status: 404, message: book.error })
+  }
+}
 
 
 
@@ -52,4 +88,4 @@ function destroy (req, res, next) {
 
 
 
-module.exports = { getAll, getOne, create, update, destroy }
+module.exports = { getAll, getOne, create, update, destroy, getOneAuthor, createAuthor, updateAuthor, destroyAuthor }
